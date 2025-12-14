@@ -4,16 +4,16 @@ This file provides guidance to Claude Code when working with this repository.
 
 ## Project Overview
 
-<!-- Describe what this project does -->
+This is a new project. Update this section with a description of what the project does.
 
 ## Build & Development
 
-<!-- Add commands for building, running, and testing -->
+No build or development commands configured yet.
 
 ## Code Style
 
-<!-- Add any code style guidelines or linting configurations -->
+No specific code style guidelines configured yet.
 
 ## Architecture
 
-<!-- Describe the high-level architecture and key directories -->
+No architecture documentation yet. Add key directories and design patterns as the project grows.
