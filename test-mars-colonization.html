@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mars Colonization - Test Suite</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #00d4ff;
+        }
+        .test-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .test-section h2 {
+            color: #e07a4a;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        .test-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(0,0,0,0.3);
+            border-radius: 5px;
+        }
+        .test-item.pass {
+            border-left: 4px solid #4ade80;
+        }
+        .test-item.fail {
+            border-left: 4px solid #f87171;
+        }
+        .test-item.pending {
+            border-left: 4px solid #fbbf24;
+        }
+        .status {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+        .summary {
+            margin-top: 20px;
+            padding: 20px;
+            background: #0f3460;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .summary.all-pass {
+            border: 2px solid #4ade80;
+        }
+        .summary.has-fail {
+            border: 2px solid #f87171;
+        }
+        .summary h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        iframe {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #00d4ff;
+            color: #1a1a2e;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #00b8e6;
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Mars Colonization HTML - Test Suite</h1>
+
+        <div class="controls">
+            <button onclick="runAllTests()">Run All Tests</button>
+            <button onclick="location.reload()">Reset</button>
+        </div>
+
+        <iframe id="testFrame" src="mars-colonization.html"></iframe>
+
+        <div class="test-section">
+            <h2>1. HTML Structure Tests</h2>
+            <div id="structure-tests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>2. Accessibility Tests</h2>
+            <div id="a11y-tests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>3. CSS Tests</h2>
+            <div id="css-tests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>4. JavaScript Tests</h2>
+            <div id="js-tests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>5. Performance Tests</h2>
+            <div id="perf-tests"></div>
+        </div>
+
+        <div id="summary" class="summary">
+            <h3>Test Summary</h3>
+            <p id="summary-text">Click "Run All Tests" to start</p>
+        </div>
+    </div>
+
+    <script>
+        let testResults = { pass: 0, fail: 0 };
+        let doc = null;
+
+        function getIframeDoc() {
+            const iframe = document.getElementById('testFrame');
+            return iframe.contentDocument || iframe.contentWindow.document;
+        }
+
+        function addTestResult(containerId, name, passed, details = '') {
+            const container = document.getElementById(containerId);
+            const item = document.createElement('div');
+            item.className = `test-item ${passed ? 'pass' : 'fail'}`;
+            item.innerHTML = `
+                <span class="status">${passed ? '✅' : '❌'}</span>
+                <span>${name}${details ? ` - ${details}` : ''}</span>
+            `;
+            container.appendChild(item);
+
+            if (passed) testResults.pass++;
+            else testResults.fail++;
+        }
+
+        function runStructureTests() {
+            doc = getIframeDoc();
+
+            // Test 1: DOCTYPE
+            addTestResult('structure-tests', 'DOCTYPE declaration exists',
+                doc.doctype !== null);
+
+            // Test 2: lang attribute
+            addTestResult('structure-tests', 'HTML lang attribute is "ja"',
+                doc.documentElement.lang === 'ja');
+
+            // Test 3: Meta viewport
+            const viewport = doc.querySelector('meta[name="viewport"]');
+            addTestResult('structure-tests', 'Viewport meta tag exists',
+                viewport !== null);
+
+            // Test 4: Main content wrapper
+            const main = doc.querySelector('main#main-content');
+            addTestResult('structure-tests', 'Main content element exists',
+                main !== null);
+
+            // Test 5: All sections exist
+            const sections = ['hero', 'why-mars', 'life', 'players', 'challenges', 'future', 'conclusion'];
+            const allSectionsExist = sections.every(id => doc.getElementById(id) !== null);
+            addTestResult('structure-tests', 'All 7 sections exist',
+                allSectionsExist, `Found ${sections.filter(id => doc.getElementById(id)).length}/7`);
+
+            // Test 6: Navigation exists
+            const nav = doc.querySelector('nav.nav');
+            addTestResult('structure-tests', 'Navigation element exists',
+                nav !== null);
+
+            // Test 7: Footer exists
+            const footer = doc.querySelector('footer');
+            addTestResult('structure-tests', 'Footer element exists',
+                footer !== null);
+
+            // Test 8: Modal exists
+            const modal = doc.querySelector('.modal-overlay');
+            addTestResult('structure-tests', 'Modal overlay exists',
+                modal !== null);
+        }
+
+        function runAccessibilityTests() {
+            // Test 1: Skip link
+            const skipLink = doc.querySelector('.skip-link');
+            addTestResult('a11y-tests', 'Skip link exists',
+                skipLink !== null);
+
+            // Test 2: Nav ARIA label
+            const nav = doc.querySelector('nav[aria-label]');
+            addTestResult('a11y-tests', 'Navigation has aria-label',
+                nav !== null);
+
+            // Test 3: Section aria-labelledby
+            const sectionsWithLabel = doc.querySelectorAll('section[aria-labelledby]');
+            addTestResult('a11y-tests', 'Sections have aria-labelledby',
+                sectionsWithLabel.length >= 5, `Found ${sectionsWithLabel.length}`);
+
+            // Test 4: Images have alt text
+            const images = doc.querySelectorAll('img');
+            const imagesWithAlt = Array.from(images).filter(img => img.alt && img.alt.length > 0);
+            addTestResult('a11y-tests', 'All images have alt text',
+                images.length === imagesWithAlt.length, `${imagesWithAlt.length}/${images.length}`);
+
+            // Test 5: Mobile menu button accessibility
+            const menuBtn = doc.querySelector('.mobile-menu-btn');
+            const hasAriaLabel = menuBtn && menuBtn.getAttribute('aria-label');
+            const hasAriaExpanded = menuBtn && menuBtn.getAttribute('aria-expanded');
+            addTestResult('a11y-tests', 'Mobile menu button has ARIA attributes',
+                hasAriaLabel && hasAriaExpanded !== null);
+
+            // Test 6: Modal has role="dialog"
+            const modal = doc.querySelector('[role="dialog"]');
+            addTestResult('a11y-tests', 'Modal has role="dialog"',
+                modal !== null);
+
+            // Test 7: Choice buttons have descriptions
+            const earthBtn = doc.querySelector('.choice-btn.earth[aria-describedby]');
+            const marsBtn = doc.querySelector('.choice-btn.mars[aria-describedby]');
+            addTestResult('a11y-tests', 'Choice buttons have aria-describedby',
+                earthBtn !== null && marsBtn !== null);
+
+            // Test 8: Reduced motion support
+            const styles = doc.querySelector('style').textContent;
+            const hasReducedMotion = styles.includes('prefers-reduced-motion');
+            addTestResult('a11y-tests', 'Supports prefers-reduced-motion',
+                hasReducedMotion);
+        }
+
+        function runCSSTests() {
+            // Test 1: CSS variables defined
+            const styles = doc.querySelector('style').textContent;
+            const hasVariables = styles.includes('--mars-red') && styles.includes('--accent-cyan');
+            addTestResult('css-tests', 'CSS custom properties defined',
+                hasVariables);
+
+            // Test 2: Mobile responsive styles
+            const hasMobileStyles = styles.includes('@media (max-width: 1024px)') &&
+                                   styles.includes('@media (max-width: 768px)');
+            addTestResult('css-tests', 'Mobile responsive breakpoints exist',
+                hasMobileStyles);
+
+            // Test 3: Animation keyframes
+            const hasAnimations = styles.includes('@keyframes slowZoom') &&
+                                 styles.includes('@keyframes glowPulse') &&
+                                 styles.includes('@keyframes bounce');
+            addTestResult('css-tests', 'Animation keyframes defined',
+                hasAnimations);
+
+            // Test 4: Mobile menu styles
+            const hasMobileMenu = styles.includes('.mobile-menu-btn') &&
+                                 styles.includes('.nav-links.active');
+            addTestResult('css-tests', 'Mobile menu CSS exists',
+                hasMobileMenu);
+
+            // Test 5: Modal styles
+            const hasModalStyles = styles.includes('.modal-overlay') &&
+                                  styles.includes('.modal-overlay.active');
+            addTestResult('css-tests', 'Modal CSS styles exist',
+                hasModalStyles);
+
+            // Test 6: Lazy loading animations
+            const hasLazyAnimations = styles.includes('.feature-list.animated') &&
+                                      styles.includes('.timeline.animated') &&
+                                      styles.includes('.challenge-grid.animated');
+            addTestResult('css-tests', 'Lazy animation classes exist',
+                hasLazyAnimations);
+
+            // Test 7: Preconnect for Google Fonts
+            const preconnects = doc.querySelectorAll('link[rel="preconnect"]');
+            const hasGooglePreconnect = Array.from(preconnects).some(
+                link => link.href.includes('fonts.googleapis.com') || link.href.includes('fonts.gstatic.com')
+            );
+            addTestResult('css-tests', 'Google Fonts preconnect exists',
+                hasGooglePreconnect);
+        }
+
+        function runJavaScriptTests() {
+            const iframe = document.getElementById('testFrame');
+            const win = iframe.contentWindow;
+
+            // Test 1: Throttle function exists
+            addTestResult('js-tests', 'Throttle utility function defined',
+                typeof win.throttle !== 'undefined' || doc.querySelector('script').textContent.includes('function throttle'));
+
+            // Test 2: Mobile menu functionality
+            const mobileBtn = doc.querySelector('.mobile-menu-btn');
+            const navLinks = doc.querySelector('.nav-links');
+            if (mobileBtn && navLinks) {
+                mobileBtn.click();
+                const menuOpens = navLinks.classList.contains('active');
+                mobileBtn.click();
+                const menuCloses = !navLinks.classList.contains('active');
+                addTestResult('js-tests', 'Mobile menu toggle works',
+                    menuOpens && menuCloses);
+            } else {
+                addTestResult('js-tests', 'Mobile menu toggle works', false);
+            }
+
+            // Test 3: Modal functionality
+            const earthBtn = doc.querySelector('.choice-btn.earth');
+            const modal = doc.querySelector('.modal-overlay');
+            if (earthBtn && modal) {
+                earthBtn.click();
+                const modalOpens = modal.classList.contains('active');
+                modal.click();
+                setTimeout(() => {
+                    const modalCloses = !modal.classList.contains('active');
+                    // Note: This is async, so we update after
+                }, 100);
+                addTestResult('js-tests', 'Modal opens on button click',
+                    modalOpens);
+            } else {
+                addTestResult('js-tests', 'Modal opens on button click', false);
+            }
+
+            // Test 4: Intersection Observer setup
+            const scriptContent = doc.querySelector('script').textContent;
+            const hasIntersectionObserver = scriptContent.includes('IntersectionObserver');
+            addTestResult('js-tests', 'Intersection Observer used',
+                hasIntersectionObserver);
+
+            // Test 5: Keyboard navigation (Escape key handler)
+            const hasEscapeHandler = scriptContent.includes("e.key === 'Escape'");
+            addTestResult('js-tests', 'Escape key handler exists',
+                hasEscapeHandler);
+
+            // Test 6: Parallax excludes hero
+            const hasHeroExclusion = scriptContent.includes('.section:not(#hero)');
+            addTestResult('js-tests', 'Parallax excludes hero section',
+                hasHeroExclusion);
+
+            // Test 7: Passive scroll listener
+            const hasPassiveScroll = scriptContent.includes('passive: true');
+            addTestResult('js-tests', 'Passive scroll listener used',
+                hasPassiveScroll);
+
+            // Test 8: Focus management
+            const hasFocusManagement = scriptContent.includes('lastFocusedElement');
+            addTestResult('js-tests', 'Modal focus management exists',
+                hasFocusManagement);
+        }
+
+        function runPerformanceTests() {
+            // Test 1: Images use lazy loading
+            const images = doc.querySelectorAll('img[loading="lazy"]');
+            const allImages = doc.querySelectorAll('img');
+            addTestResult('perf-tests', 'Images use lazy loading',
+                images.length >= allImages.length - 1, `${images.length}/${allImages.length} images`);
+
+            // Test 2: will-change property used
+            const styles = doc.querySelector('style').textContent;
+            const hasWillChange = styles.includes('will-change');
+            addTestResult('perf-tests', 'will-change CSS property used',
+                hasWillChange);
+
+            // Test 3: translate3d for GPU acceleration
+            const scriptContent = doc.querySelector('script').textContent;
+            const hasTranslate3d = scriptContent.includes('translate3d');
+            addTestResult('perf-tests', 'translate3d for GPU acceleration',
+                hasTranslate3d);
+
+            // Test 4: Scroll throttling
+            const hasThrottle = scriptContent.includes('throttle(');
+            addTestResult('perf-tests', 'Scroll handler is throttled',
+                hasThrottle);
+
+            // Test 5: Observer unobserve for one-time animations
+            const hasUnobserve = scriptContent.includes('unobserve');
+            addTestResult('perf-tests', 'Observer cleanup (unobserve) used',
+                hasUnobserve);
+
+            // Test 6: backdrop-filter for blur effects
+            const hasBackdropFilter = styles.includes('backdrop-filter');
+            addTestResult('perf-tests', 'backdrop-filter used for blur',
+                hasBackdropFilter);
+        }
+
+        function updateSummary() {
+            const summary = document.getElementById('summary');
+            const summaryText = document.getElementById('summary-text');
+            const total = testResults.pass + testResults.fail;
+            const percentage = Math.round((testResults.pass / total) * 100);
+
+            summaryText.innerHTML = `
+                <strong>${testResults.pass}</strong> passed,
+                <strong>${testResults.fail}</strong> failed
+                (${percentage}% success rate)
+            `;
+
+            summary.className = testResults.fail === 0 ? 'summary all-pass' : 'summary has-fail';
+        }
+
+        function runAllTests() {
+            // Reset
+            testResults = { pass: 0, fail: 0 };
+            document.querySelectorAll('.test-section > div').forEach(div => div.innerHTML = '');
+
+            // Wait for iframe to load
+            const iframe = document.getElementById('testFrame');
+
+            if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+                executeTests();
+            } else {
+                iframe.onload = executeTests;
+            }
+        }
+
+        function executeTests() {
+            try {
+                doc = getIframeDoc();
+                runStructureTests();
+                runAccessibilityTests();
+                runCSSTests();
+                runJavaScriptTests();
+                runPerformanceTests();
+                updateSummary();
+            } catch (e) {
+                console.error('Test error:', e);
+                document.getElementById('summary-text').textContent = 'Error running tests: ' + e.message;
+            }
+        }
+
+        // Auto-run tests when iframe loads
+        document.getElementById('testFrame').onload = () => {
+            setTimeout(runAllTests, 500);
+        };
+    </script>
+</body>
+</html>
